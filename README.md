@@ -1,5 +1,5 @@
 # DiffSound
-This is the code for paper "DiffSound: Differentiable Modal Sound Rendering and Inverse Rendering for Diverse Inference Tasks".
+This is the code for paper "[DiffSound: Differentiable Modal Sound Rendering and Inverse Rendering for Diverse Inference Tasks](https://arxiv.org/pdf/2409.13486)".
 The code is written in python and uses the pytorch library for the automatic differentiation. 
 
 ## Prerequisites
@@ -72,5 +72,6 @@ Then, infer the morphing coeffecient of each generated morphed mesh from its mod
 python experiments/morphing_train.py --config configs/morphing_train.json
 ```
 The infer result (value in txt file and mesh result) is saved in ```out_dir``` in config file ```morphing_train.json```(default: ```out/morphing```).
+
 
 
