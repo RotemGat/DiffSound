@@ -8,6 +8,7 @@ import sys
 sys.path.append('./')
 import torch
 import os
+os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 import argparse
 import json
 from datetime import datetime
@@ -111,11 +112,11 @@ if __name__ == "__main__":
     log_spec_funcs = [late_loss_func.losses[i].log_spec for i in range(len(late_loss_func.losses))]
     
     pre_osc = GTDampedOscillator(gt_forces, len(
-    gt_audios), eigen_num * 16, frame_num, sample_rate, [20, 16000], Material(material_coeff)).cuda()
+    gt_audios), eigen_num * 32, frame_num, sample_rate, [20, 16000], Material(material_coeff)).cuda()
     optimizer_pre_osc = Adam(pre_osc.parameters(), lr=5e-3)
     scheduler_pre_osc = lr_scheduler.StepLR(optimizer_pre_osc, step_size=100, gamma=0.99)
     for epoch_i in tqdm(range(2001)):
-        predict_signal = pre_osc(noise_rate=2e-4)
+        predict_signal = pre_osc(noise_rate=5e-4)
         loss = late_loss_func(predict_signal, gt_audios)
         optimizer_pre_osc.zero_grad()
         loss.backward()
@@ -133,7 +134,7 @@ if __name__ == "__main__":
 
     damping = pre_osc.damping()
     freq_linear = pre_osc.freq_linear()
-    mask = damping < 300
+    mask = damping < 100
     damping = damping[mask]
     freq_linear = freq_linear[mask]
     x = []
@@ -235,9 +236,9 @@ if __name__ == "__main__":
                         
                 gt_audios_save = gt_audios / torch.max(torch.abs(gt_audios))
                 predict_signal_save = predict_signal / torch.max(torch.abs(predict_signal))
-                torchaudio.save(dir_name + '/predict.mp3',
+                torchaudio.save(dir_name + '/predict.wav',
                                 predict_signal_save[0].detach().cpu().unsqueeze(0), sample_rate)
-                torchaudio.save(dir_name + '/gt.mp3',
+                torchaudio.save(dir_name + '/gt.wav',
                                 gt_audios_save[0].detach().cpu().unsqueeze(0), sample_rate)
         if epoch_i % (EIGEN_DECOMPOSE_CYCLE*100) == 0:
             torch.save(model.material_model.state_dict(), dir_name + '/model.pth')
