@@ -134,7 +134,7 @@ if __name__ == "__main__":
 
     damping = pre_osc.damping()
     freq_linear = pre_osc.freq_linear()
-    mask = damping < 200
+    mask = damping < 100
     damping = damping[mask]
     freq_linear = freq_linear[mask]
     x = []
