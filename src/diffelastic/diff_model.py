@@ -16,6 +16,7 @@ batch_trace = torch.vmap(torch.trace)
 # linear elastic without any trainable args
 class FixedLinear(nn.Module):
     def __init__(self, mat: Material):
+        super().__init__()
         self.youngs = mat.youngs
         self.poisson = mat.poisson
         self.mat = mat
@@ -382,7 +383,7 @@ class DiffSoundObj:
             U = self.U_hat.float() # (n, sample_num)
             vals = self.eigenvalues.float()
             if self.task != "gt":
-                add_term = (U.T @ self.stiff_func(U)).diagonal() - vals * (U.T @ (self.mass_matrix.float() @ U)).diagonal()
+                add_term = (U.T @ self.stiff_func(U)).diagonal() - vals * (U.T @ (self.mass_matrix.float().to_dense() @ U)).diagonal()
                 predict += add_term
         predict = torch.sqrt(predict) / 2 / np.pi
         return predict.unsqueeze(1)
